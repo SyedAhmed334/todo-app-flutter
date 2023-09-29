@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:todo_app_flutter/task_controller.dart';
 
 enum Priority { High, Normal, Low }
 
@@ -33,9 +34,9 @@ class ToDoApp extends StatefulWidget {
 }
 
 class _ToDoAppState extends State<ToDoApp> {
+  TextEditingController taskNameController = TextEditingController();
   Priority _selectedPriority = Priority.Normal;
-  bool checkbox = false;
-
+  List<TaskController> tasks = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,6 +52,7 @@ class _ToDoAppState extends State<ToDoApp> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       TextField(
+                        controller: taskNameController,
                         decoration: InputDecoration(hintText: 'Add a new task'),
                       ),
                       SizedBox(
@@ -91,6 +93,13 @@ class _ToDoAppState extends State<ToDoApp> {
                           ElevatedButton(
                             onPressed: () {
                               setState(() {
+                                tasks.add(TaskController(
+                                  taskName: taskNameController.text,
+                                  priority: _selectedPriority
+                                      .toString()
+                                      .split('.')
+                                      .last,
+                                ));
                                 Navigator.pop(context);
                               });
                             },
@@ -123,25 +132,28 @@ class _ToDoAppState extends State<ToDoApp> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView.builder(
-          itemCount: 16,
+          itemCount: tasks.length,
           itemBuilder: (context, index) {
             return Card(
               color: Colors.yellow,
               child: ListTile(
                 leading: Checkbox(
-                    value: checkbox,
+                    value: tasks[index].isDone,
                     fillColor: MaterialStatePropertyAll(Colors.white),
                     checkColor: Colors.green,
                     onChanged: (value) {
                       setState(() {});
-                      checkbox = value!;
+                      tasks[index].isDone = value!;
+                      if (tasks[index].isDone == true) {
+                        tasks.removeAt(index);
+                      }
                     }),
                 title: Text(
-                  'My Task 1',
+                  tasks[index].taskName,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 subtitle: Text(
-                  'High',
+                  tasks[index].priority,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
