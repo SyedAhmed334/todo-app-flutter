@@ -144,18 +144,31 @@ class _ToDoAppState extends State<ToDoApp> {
                     onChanged: (value) {
                       setState(() {});
                       tasks[index].isDone = value!;
-                      if (tasks[index].isDone == true) {
-                        tasks.removeAt(index);
-                      }
                     }),
-                title: Text(
-                  tasks[index].taskName,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
+                title: Text(tasks[index].taskName,
+                    style: TextStyle(
+                        fontSize:
+                            Theme.of(context).textTheme.headlineSmall!.fontSize,
+                        fontWeight: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.fontWeight,
+                        decoration: tasks[index].isDone
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none)),
                 subtitle: Text(
                   tasks[index].priority,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
+                trailing: IconButton(
+                    onPressed: () {
+                      setState(() {});
+                      tasks.removeAt(index);
+                    },
+                    icon: Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    )),
               ),
             );
           },
