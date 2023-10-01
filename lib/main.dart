@@ -1,7 +1,10 @@
 // ignore_for_file: prefer_const_constructors, constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:todo_app_flutter/task_controller.dart';
+
+import 'db_controller.dart';
 
 enum Priority { High, Normal, Low }
 
@@ -36,7 +39,26 @@ class ToDoApp extends StatefulWidget {
 class _ToDoAppState extends State<ToDoApp> {
   TextEditingController taskNameController = TextEditingController();
   Priority _selectedPriority = Priority.Normal;
-  List<TaskController> tasks = [];
+  List<Task> tasks = [];
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadTasks();
+  }
+
+  loadTasks() async {
+    setState(() {
+      isLoading = true;
+    });
+    tasks = await DatabaseController.db.getAllTasks();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,16 +114,17 @@ class _ToDoAppState extends State<ToDoApp> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              setState(() {
-                                tasks.add(TaskController(
+                              DatabaseController.db.addTask(
+                                Task(
                                   taskName: taskNameController.text,
                                   priority: _selectedPriority
                                       .toString()
                                       .split('.')
                                       .last,
-                                ));
-                                Navigator.pop(context);
-                              });
+                                ),
+                              );
+                              loadTasks();
+                              Navigator.pop(context);
                             },
                             child: Text('Save'),
                           ),
@@ -162,8 +185,9 @@ class _ToDoAppState extends State<ToDoApp> {
                 ),
                 trailing: IconButton(
                     onPressed: () {
-                      setState(() {});
-                      tasks.removeAt(index);
+                      DatabaseController.db
+                          .deleteTask(tasks[index].taskName)
+                          .then((value) => loadTasks());
                     },
                     icon: Icon(
                       Icons.delete,
