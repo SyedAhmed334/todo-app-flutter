@@ -24,7 +24,7 @@ class DatabaseController {
           "isDone INTEGER"
           ")");
     });
-  }
+  }git
 
   Future addTask(Task task) async {
     final db = await database;
