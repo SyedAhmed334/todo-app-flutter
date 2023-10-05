@@ -30,6 +30,7 @@ class DatabaseController {
     final db = await database;
     var response = await db.insert("Todo", task.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
+    print(response);
     return response;
   }
 
